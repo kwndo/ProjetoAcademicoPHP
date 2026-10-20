@@ -1,0 +1,18 @@
+
+
+# Configurações locais e segredos
+.env
+.env.*
+!.env.example
+
+# Dependências e arquivos temporários
+/vendor/
+/node_modules/
+/tmp/
+*.log
+
+# Arquivos do sistema operacional e IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

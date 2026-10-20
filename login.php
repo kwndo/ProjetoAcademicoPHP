@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $consulta = $pdo->prepare(
             'SELECT id, nome, email, senha, perfil
              FROM usuarios
-             WHERE email = :email'
+             WHERE email = :email' 
         );
 
         $consulta->execute(['email' => $email]);
@@ -113,6 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit" class="btn btn-primary w-100">
                 Entrar
             </button>
+
+            <a href="cadastro.php" class="btn btn-outline-primary w-100 mt-2">Cadastrar</a>
         </form>
 
     </div>

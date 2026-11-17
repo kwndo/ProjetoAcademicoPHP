@@ -1,3 +1,5 @@
+editar.php
+
 
 <?php
 require_once __DIR__ . '/../includes/autenticacao.php';
@@ -15,11 +17,16 @@ if (!$id || $id < 1) {
 }
 
 $consulta = $pdo->prepare(
-    'SELECT id, nome, descricao, tipo, preco
+    'SELECT id, nome, descricao, preco
      FROM produtos
-     WHERE id = :id'
+     WHERE id = :id
+     AND usuario_id = :usuario_id'
 );
-$consulta->execute(['id' => $id]);
+
+$consulta->execute([
+    'id' => $id,
+    'usuario_id' => $_SESSION['usuario_id']
+]);
 $produto = $consulta->fetch();
 
 if (!$produto) {
@@ -29,7 +36,6 @@ if (!$produto) {
 
 $nome = $produto['nome'];
 $descricao = $produto['descricao'] ?? '';
-$tipo = $produto['tipo'];
 $preco = (string) $produto['preco'];
 $erros = [];
 
@@ -37,7 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     validarTokenCsrf();
     $nome = trim($_POST['nome'] ?? '');
     $descricao = trim($_POST['descricao'] ?? '');
-    $tipo = $_POST['tipo'] ?? '';
     $preco = trim($_POST['preco'] ?? '');
 
     if ($nome === '') {
@@ -52,9 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erros[] = 'A descrição deve ter no máximo 5000 caracteres.';
     }
 
-    if (!in_array($tipo, ['Produto', 'Servico'], true)) {
-        $erros[] = 'Selecione um tipo válido.';
-    }
 
     $precoNormalizado = str_replace(',', '.', $preco);
 
@@ -74,18 +76,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $atualizacao = $pdo->prepare(
                 'UPDATE produtos
                  SET nome = :nome,
-                     descricao = :descricao,
-                     tipo = :tipo,
-                     preco = :preco
-                 WHERE id = :id'
-            );
+                 descricao = :descricao,
+                preco = :preco
+                WHERE id = :id
+                AND usuario_id = :usuario_id'
+);
 
             $atualizacao->execute([
                 'nome' => $nome,
                 'descricao' => $descricao !== '' ? $descricao : null,
-                'tipo' => $tipo,
                 'preco' => $precoNormalizado,
-                'id' => $id
+                'id' => $id,
+                'usuario_id' => $_SESSION['usuario_id']
             ]);
 
             header('Location: index.php?sucesso=editado');
@@ -184,32 +186,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 'UTF-8'
                             ) ?></textarea>
                         </div>
-
-                        <div class="mb-3">
-                            <label for="tipo" class="form-label">Tipo</label>
-
-                            <select
-                                class="form-select"
-                                id="tipo"
-                                name="tipo"
-                                required
-                            >
-                                <option
-                                    value="Produto"
-                                    <?= $tipo === 'Produto' ? 'selected' : '' ?>
-                                >
-                                    Produto
-                                </option>
-
-                                <option
-                                    value="Servico"
-                                    <?= $tipo === 'Servico' ? 'selected' : '' ?>
-                                >
-                                    Serviço
-                                </option>
-                            </select>
-                        </div>
-
                         <div class="mb-4">
                             <label for="preco" class="form-label">
                                 Preço (R$)

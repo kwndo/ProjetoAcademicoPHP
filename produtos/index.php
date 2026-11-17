@@ -1,3 +1,6 @@
+index.php 
+
+
 
 <?php
 require_once __DIR__ . '/../includes/autenticacao.php';
@@ -7,13 +10,18 @@ require_once __DIR__ . '/../config/conexao.php';
 require_once __DIR__ . '/../includes/csrf.php';
 
 try {
-    $consulta = $pdo->query(
-        'SELECT id, nome, descricao, preco, criado_em
-         FROM produtos
-         ORDER BY nome ASC'
+    $consulta = $pdo->prepare(
+        'SELECT * FROM produtos
+         WHERE usuario_id = :usuario_id
+         ORDER BY id DESC'
     );
 
-    $produtos = $consulta->fetchAll();
+    $consulta->execute([
+        'usuario_id' => $_SESSION['usuario_id']
+    ]);
+
+    $produtos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+
 } catch (PDOException $e) {
     error_log($e->getMessage());
     exit('Não foi possível carregar os produtos e serviços.');

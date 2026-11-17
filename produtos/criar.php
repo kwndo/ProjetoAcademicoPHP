@@ -1,4 +1,4 @@
-
+criar.php
 <?php
 require_once __DIR__ . '/../includes/autenticacao.php';
 exigirLogin();
@@ -48,14 +48,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($erros)) {
         try {
             $insercao = $pdo->prepare(
-                'INSERT INTO produtos (nome, descricao, preco)
-                 VALUES (:nome, :descricao, :preco)'
+                'INSERT INTO produtos (nome, descricao, preco, usuario_id)
+                 VALUES (:nome, :descricao, :preco, :usuario_id)'
             );
 
             $insercao->execute([
                 'nome' => $nome,
                 'descricao' => $descricao !== '' ? $descricao : null,
-                'preco' => $precoNormalizado
+                'preco' => $precoNormalizado,
+                'usuario_id' => $_SESSION['usuario_id']
             ]);
 
             header('Location: index.php?sucesso=cadastrado');
